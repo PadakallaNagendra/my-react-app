@@ -1,0 +1,131 @@
+.zomato-container {
+  background: #fff;
+  min-height: 100vh;
+  padding: 20px 40px;
+  font-family: "Poppins", sans-serif;
+  color: #333;
+  animation: fadeIn 0.8s ease-in;
+}
+
+.menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ff4d4f;
+  padding: 16px 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(255, 77, 79, 0.3);
+  color: #fff;
+  margin-bottom: 30px;
+}
+
+.menu-title {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.logout-btn {
+  background: #fff;
+  color: #ff4d4f;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+  background: #ff6666;
+  color: #fff;
+}
+
+.menu-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.tab-item {
+  text-align: center;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.tab-item:hover {
+  transform: translateY(-3px);
+}
+
+.tab-icon {
+  color: #ff4d4f;
+  margin-bottom: 6px;
+  transition: color 0.3s ease;
+}
+
+.tab-name {
+  font-size: 16px;
+  font-weight: 500;
+  color: #444;
+}
+
+.tab-item.active .tab-name {
+  color: #ff4d4f;
+  font-weight: 600;
+}
+
+.underline {
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50%;
+  height: 3px;
+  background-color: #ff4d4f;
+  border-radius: 4px;
+  animation: slideIn 0.3s ease;
+}
+
+.tab-content {
+  margin-top: 30px;
+  animation: fadeIn 0.8s ease-in;
+}
+
+@keyframes slideIn {
+  from {
+    width: 0;
+  }
+  to {
+    width: 50%;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (max-width: 768px) {
+  .zomato-container {
+    padding: 15px 20px;
+  }
+  .menu-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .menu-tabs {
+    gap: 25px;
+  }
+}
