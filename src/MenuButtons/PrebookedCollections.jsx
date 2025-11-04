@@ -115,9 +115,10 @@ const PrebookedCollections = () => {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("upi");
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [filter, setFilter] = useState("all"); // all | booked | unbooked
+  const [filter, setFilter] = useState("all");
+  const [selectedBookingId, setSelectedBookingId] = useState(null); // New: for dropdown
 
-  // Generate tables for all restaurants
+  // Generate tables
   const [allTables, setAllTables] = useState(() => {
     const tables = {};
     collections.forEach(col => {
@@ -156,7 +157,7 @@ const PrebookedCollections = () => {
     return cartItems.reduce((sum, i) => sum + parseFloat(i.price), 0).toFixed(2);
   }, [cartItems]);
 
-  // Check if slot is already booked for this restaurant and date
+  // Check if slot is booked
   const isSlotBooked = (restaurantName, date, slot) => {
     return cartItems.some(
       item => item.name === restaurantName && item.date === date && item.slot === slot
@@ -179,7 +180,7 @@ const PrebookedCollections = () => {
     }
 
     const item = {
-      id: Date.now(),
+      id: Date.now().toString(),
       name: selectedRestaurant.name,
       table: selectedTable.number,
       date,
@@ -216,21 +217,34 @@ const PrebookedCollections = () => {
     toast.info("Booking removed");
   };
 
+  const selectedBooking = cartItems.find(i => i.id === selectedBookingId);
+
   const handlePayClick = () => {
+    if (!selectedBooking) {
+      toast.error("Please select a booking to pay.");
+      return;
+    }
     setShowConfirmModal(true);
   };
 
   const handleConfirmPayment = () => {
+    if (!selectedBooking) return;
+
+    // Remove from cart
+    setCartItems(prev => prev.filter(i => i.id !== selectedBooking.id));
+
+    // Keep table booked permanently
+    setAllTables(prev => ({
+      ...prev,
+      [selectedBooking.name]: prev[selectedBooking.name].map(t =>
+        t.number === selectedBooking.table ? { ...t, status: "booked" } : t
+      ),
+    }));
+
+    toast.success(`Paid ₹${selectedBooking.price} for Table T${selectedBooking.table}!`);
     setShowConfirmModal(false);
     setShowPaymentModal(false);
-    toast.success("Payment successful! Your tables are confirmed.");
-    setCartItems([]);
-    setShowRates(false);
-    setSelectedRestaurant(null);
-    setSelectedSlot("");
-    setGuestCount(4);
-    setManualDiscount("");
-    setSelectedTable(null);
+    setSelectedBookingId(null);
   };
 
   const handleCancelPayment = () => {
@@ -307,7 +321,7 @@ const PrebookedCollections = () => {
         </div>
       )}
 
-      {/* MAIN GRID - 4 CARDS PER ROW */}
+      {/* MAIN GRID */}
       {!selected && (
         <>
           <h2 className="collections-title">Collections</h2>
@@ -341,7 +355,6 @@ const PrebookedCollections = () => {
                 <p>{selected.description}</p>
                 <p className="places">{selected.places} Places</p>
               </div>
-              <button className="close-detail" onClick={() => setSelected(null)}>X</button>
             </div>
 
             <div className="related-section">
@@ -541,7 +554,7 @@ const PrebookedCollections = () => {
         )}
       </AnimatePresence>
 
-      {/* PAYMENT MODAL */}
+      {/* PAYMENT MODAL WITH DROPDOWN */}
       <AnimatePresence>
         {showPaymentModal && (
           <motion.div className="payment-modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -566,34 +579,66 @@ const PrebookedCollections = () => {
                 ))}
               </div>
 
+              {/* DROPDOWN TO SELECT ONE BOOKING */}
+              <div className="select-booking-section">
+                <label><strong>Select booking to pay</strong></label>
+                <select
+                  value={selectedBookingId || ""}
+                  onChange={e => setSelectedBookingId(e.target.value)}
+                  className="booking-dropdown"
+                >
+                  <option value="" disabled>-- Choose a booking --</option>
+                  {cartItems.map(item => (
+                    <option key={item.id} value={item.id}>
+                      {item.name} - T{item.table} ({item.date} {item.slot})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               <div className="total-section">
-                <p><strong>Total Amount:</strong> ₹{totalAmount}</p>
+                <p><strong>Total Amount:</strong> {selectedBooking ? `₹${selectedBooking.price}` : "₹0.00"}</p>
                 <p><strong>Bookings:</strong> {cartItems.length}</p>
               </div>
 
               <div className="payment-method-section">
                 <label><strong>Payment Method</strong></label>
                 <div className="payment-methods">
-                  <button className={`payment-method-btn ${paymentMethod === "upi" ? "active" : ""}`} onClick={() => setPaymentMethod("upi")}>UPI</button>
-                  <button className={`payment-method-btn ${paymentMethod === "cash" ? "active" : ""}`} onClick={() => setPaymentMethod("cash")}>Cash</button>
+                  <button
+                    className={`payment-method-btn ${paymentMethod === "upi" ? "active" : ""}`}
+                    onClick={() => setPaymentMethod("upi")}
+                  >
+                    UPI
+                  </button>
+                  <button
+                    className={`payment-method-btn ${paymentMethod === "cash" ? "active" : ""}`}
+                    onClick={() => setPaymentMethod("cash")}
+                  >
+                    Cash
+                  </button>
                 </div>
               </div>
 
-              <motion.button whileTap={{ scale: 0.95 }} onClick={handlePayClick} className="pay-btn">
-                Pay ₹{totalAmount}
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={handlePayClick}
+                className="pay-btn"
+                disabled={!selectedBooking}
+              >
+                Pay {selectedBooking ? `₹${selectedBooking.price}` : "₹0.00"}
               </motion.button>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* CONFIRMATION MODAL */}
+      {/* CONFIRM MODAL */}
       <AnimatePresence>
-        {showConfirmModal && (
+        {showConfirmModal && selectedBooking && (
           <motion.div className="confirm-modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             <motion.div className="confirm-modal" initial={{ scale: 0.8 }} animate={{ scale: 1 }}>
               <h4>Confirm Payment</h4>
-              <p>Pay <strong>₹{totalAmount}</strong> for {cartItems.length} booking{cartItems.length > 1 ? "s" : ""}?</p>
+              <p>Pay <strong>₹{selectedBooking.price}</strong> for Table T{selectedBooking.table}?</p>
               <div className="confirm-actions">
                 <button onClick={handleConfirmPayment} className="confirm-ok">OK</button>
                 <button onClick={handleCancelPayment} className="confirm-cancel">Cancel</button>

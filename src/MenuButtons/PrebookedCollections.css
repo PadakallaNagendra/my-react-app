@@ -72,10 +72,26 @@
   left: 30px;
   color: white;
 }
+.select-booking-section {
+  margin: 16px 0;
+}
 
+.booking-dropdown {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  font-size: 1rem;
+  background: white;
+}
+
+.pay-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 .close-detail {
   position: absolute;
-  top: 15px;
+  top: 150px;
   right: 20px;
   background: crimson;
   color: white;

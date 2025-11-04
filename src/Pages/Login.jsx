@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
-import { FaEnvelope, FaLock, FaUser } from "react-icons/fa";
+import { useNavigate, Link } from "react-router-dom";
+import { FaEnvelope, FaLock } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./LoginPage.css";
@@ -12,7 +12,6 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-  // ✅ Clear fields on mount
   useEffect(() => {
     setEmail("");
     setPassword("");
@@ -36,13 +35,7 @@ const LoginPage = () => {
         theme: "colored",
       });
 
-      setEmail("");
-      setPassword("");
-
-      // Navigate after short delay
-      setTimeout(() => {
-        navigate("/menu");
-      }, 2000);
+      setTimeout(() => navigate("/menu"), 2000);
     } else {
       toast.error("❌ Invalid credentials! Please try again.", {
         position: "top-center",
@@ -53,81 +46,82 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="login-page">
+    <div className="login-wrapper">
       <ToastContainer />
 
-      {/* Background Circles */}
-      <div className="circle circle1"></div>
-      <div className="circle circle2"></div>
-
-      {/* Login Card */}
       <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
+        className="login-container"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="login-card"
       >
-        <div className="avatar-container">
-          <FaUser className="avatar-icon" />
+        {/* Left Image / Video Section */}
+        <div className="login-media">
+          <video
+            className="login-video"
+            autoPlay
+            loop
+            muted
+            playsInline
+          >
+            <source
+              src="https://v.ftcdn.net/15/17/45/06/240_F_1517450675_KPl99O3H8onA2joQ8uc8kPEuQ09YeRn5_ST.mp4"
+              type="video/mp4"
+            />
+          </video>
         </div>
 
-        <h2 className="login-title">Welcome Back 👋</h2>
-        <p className="subtitle">Login to access your dashboard</p>
+        {/* Right Login Section */}
+        <div className="login-form-section">
+          <h2 className="login-title">Food Portal</h2>
+          <p className="login-subtitle">Sign in to manage your dashboard</p>
 
-        <form onSubmit={handleLogin} className="login-form">
-          {/* Email Field */}
-          <div className="input-group">
-            <FaEnvelope className="input-icon" />
-            <input
-              type="email"
-              placeholder="Email ID"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
+          <form onSubmit={handleLogin} className="login-form">
+            <div className="input-group">
+              <FaEnvelope className="input-icon" />
+              <input
+                type="email"
+                placeholder="Email ID"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
 
-          {/* Password Field */}
-          <div className="input-group">
-            <FaLock className="input-icon" />
-            <input
-              type={showPassword ? "text" : "password"}
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            <span
-              className="show-pass"
-              onClick={() => setShowPassword(!showPassword)}
+            <div className="input-group">
+              <FaLock className="input-icon" />
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <span
+                className="show-pass"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? "🙈" : "👁️"}
+              </span>
+            </div>
+
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              type="submit"
+              className="login-btn"
             >
-              {showPassword ? "🙈" : "👁️"}
-            </span>
-          </div>
+              Sign In
+            </motion.button>
+          </form>
 
-          <div className="options">
-            <a href="#" className="forgot-link">
-              Forgot Password?
-            </a>
-          </div>
-
-          {/* Login Button */}
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            type="submit"
-            className="login-btn"
-          >
-            LOGIN
-          </motion.button>
-        </form>
-
-        <p className="register-text">
-          Don’t have an account?{" "}
-          <a href="/register" className="register-link">
-            Register
-          </a>
-        </p>
+          <p className="register-text">
+            Don’t have an account?{" "}
+            <Link to="/register" className="register-link">
+              Register here
+            </Link>
+          </p>
+        </div>
       </motion.div>
     </div>
   );
